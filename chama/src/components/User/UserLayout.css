@@ -1,0 +1,35 @@
+.user-layout {
+    display: flex;
+  }
+  
+  .user-sidebar {
+    width: 200px;
+    background-color: #f4f4f4;
+    padding: 20px;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .user-sidebar ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .user-sidebar li {
+    margin-bottom: 10px;
+  }
+  
+  .user-sidebar a {
+    text-decoration: none;
+    color: #333;
+    font-weight: bold;
+  }
+  
+  .user-sidebar a:hover {
+    text-decoration: underline;
+  }
+  
+  .user-content {
+    flex-grow: 1;
+    padding: 20px;
+  }
+  

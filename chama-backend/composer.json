@@ -1,0 +1,15 @@
+{
+    "name": "gilbe/chama-backend",
+    "description": "chama backend project",
+    "type": "php",
+    "require": {
+        "php": "8.2.12",
+        "phpoffice/phpspreadsheet": "1.18",
+        "fpdf/fpdf": "1.84"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gilbe\\ChamaBackend\\": "src/"
+        }
+    }
+}
