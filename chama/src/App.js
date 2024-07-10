@@ -20,14 +20,14 @@ const App = () => {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUpPage />} />
         <Route path="/user" element={<UserLayout />}>
           <Route path="make-payment" element={<MakePayment />} />
           <Route path="request-loan" element={<RequestLoan />} />
           <Route path="view-payments" element={<ViewPayments />} />
         </Route>
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/" element={<AdminLayout />}>
           <Route path="approve-loan" element={<ApproveLoan />} />
           <Route path="manage-users" element={<ManageUsers />} />
           <Route path="view-contributions" element={<ViewContributions />} />
