@@ -23,16 +23,21 @@ const AuthForm = () => {
       if (response.data.message === 'Login successful') {
         const role = response.data.role;
         if (role === 'admin') {
-          navigate('/admin');
+          navigate('/admin'); // Redirect to admin dashboard
         } else {
-          navigate('/user');
+          navigate('/user'); // Redirect to user dashboard
         }
       } else if (response.data.message === 'User created') {
-        navigate('/user');
+        const role = response.data.role;
+        if (role === 'admin') {
+          navigate('/admin'); // Redirect to admin dashboard after signup
+        } else {
+          navigate('/user'); // Redirect to user dashboard after signup
+        }
       } else {
         console.error(response.data.message);
         if (response.data.message === 'Invalid credentials or user not found') {
-          setIsSignUp(true);
+          setIsSignUp(true); // Switch to signup if login fails
         }
       }
     } catch (error) {
@@ -81,6 +86,7 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
+
 
 
 

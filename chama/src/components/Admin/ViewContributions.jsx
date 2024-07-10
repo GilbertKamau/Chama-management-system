@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 
 const ViewContributions = () => {
-  // Mock contribution data
-  const contributions = [
-    { id: 1, user: 'User1', amount: 1000 },
-    { id: 2, user: 'User2', amount: 2000 },
-  ];
+  const [contributions, setContributions] = useState([]);
+
+  useEffect(() => {
+    // Fetch contributions data
+    const fetchContributions = async () => {
+      try {
+        const response = await axios.get('http://localhost/chama-backend/api/contributions.php');
+        setContributions(response.data);
+      } catch (error) {
+        console.error('Error fetching contributions:', error);
+      }
+    };
+
+    fetchContributions();
+  }, []);
 
   return (
     <div>
