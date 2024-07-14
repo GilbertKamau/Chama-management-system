@@ -10,12 +10,12 @@ if ($method === 'POST') {
     $action = $data['action']; // 'login' or 'signup'
     $email = $data['email'];
     $password = $data['password'];
+    $adminPassword = $data['adminPassword'] ?? ''; // Admin password from the signup form
 
-    // List of predefined admin emails
-    $adminEmails = [
-        'admin@example.com',
-        'roro@r.com',
-        'eve@e.gmail.com'
+    // List of predefined admin emails and their hashed passwords
+    $adminCredentials = [
+        'eve@e.com' => password_hash('0000', PASSWORD_DEFAULT),
+        'roro@r.com' => password_hash('1111', PASSWORD_DEFAULT)
     ];
 
     if ($action === 'signup') {
@@ -29,8 +29,11 @@ if ($method === 'POST') {
         if ($user) {
             echo json_encode(['message' => 'Email already exists']);
         } else {
-            // Determine role based on email
-            $role = in_array($email, $adminEmails) ? 'admin' : 'user';
+            // Determine role based on email and admin password
+            $role = 'user'; // Default role
+            if (isset($adminCredentials[$email]) && password_verify($adminPassword, $adminCredentials[$email])) {
+                $role = 'admin';
+            }
 
             $stmt = $pdo->prepare('INSERT INTO users (email, password, role) VALUES (?, ?, ?)');
             if ($stmt->execute([$email, $hashedPassword, $role])) {
@@ -52,6 +55,7 @@ if ($method === 'POST') {
     }
 }
 ?>
+
 
 
 
