@@ -5,13 +5,18 @@ const ViewContributions = () => {
   const [contributions, setContributions] = useState([]);
 
   useEffect(() => {
-    // Fetch contributions data
     const fetchContributions = async () => {
       try {
         const response = await axios.get('http://localhost/chama-backend/api/contributions.php');
-        setContributions(response.data);
+        if (Array.isArray(response.data)) {
+          setContributions(response.data);
+        } else {
+          console.error('Invalid data format:', response.data);
+          setContributions([]);
+        }
       } catch (error) {
         console.error('Error fetching contributions:', error);
+        setContributions([]);
       }
     };
 
@@ -23,7 +28,7 @@ const ViewContributions = () => {
       <h2>View Contributions</h2>
       <ul>
         {contributions.map((contribution) => (
-          <li key={contribution.id}>{`User: ${contribution.user}, Amount: ${contribution.amount}`}</li>
+          <li key={contribution.id}>{`User: ${contribution.user_id}, Amount: ${contribution.amount}, Date: ${contribution.contribution_date}, Description: ${contribution.description}`}</li>
         ))}
       </ul>
     </div>
@@ -31,3 +36,5 @@ const ViewContributions = () => {
 };
 
 export default ViewContributions;
+
+

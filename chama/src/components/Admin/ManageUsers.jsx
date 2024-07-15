@@ -28,7 +28,9 @@ const ManageUsers = () => {
         password,
       });
       if (response.data.message === 'User added successfully') {
-        setUsers([...users, { email, role: 'user' }]);
+        setUsers([...users, { id: response.data.id, email, role: 'user' }]);
+        setEmail('');
+        setPassword('');
       } else {
         console.error(response.data.message);
       }
@@ -38,17 +40,19 @@ const ManageUsers = () => {
   };
 
   const handleRemoveUser = async (userId) => {
-    try {
-      const response = await axios.delete('http://localhost/chama-backend/api/users.php', {
-        data: { userId },
-      });
-      if (response.data.message === 'User removed successfully') {
-        setUsers(users.filter(user => user.id !== userId));
-      } else {
-        console.error(response.data.message);
+    if (window.confirm('Are you sure you want to remove this user?')) {
+      try {
+        const response = await axios.delete('http://localhost/chama-backend/api/users.php', {
+          data: { userId },
+        });
+        if (response.data.message === 'User removed successfully') {
+          setUsers(users.filter(user => user.id !== userId));
+        } else {
+          console.error(response.data.message);
+        }
+      } catch (error) {
+        console.error('Error removing user:', error);
       }
-    } catch (error) {
-      console.error('Error removing user:', error);
     }
   };
 
@@ -74,3 +78,4 @@ const ManageUsers = () => {
 };
 
 export default ManageUsers;
+

@@ -19,7 +19,8 @@ if ($method === 'GET') {
 
     $stmt = $pdo->prepare('INSERT INTO users (email, password, role) VALUES (?, ?, ?)');
     if ($stmt->execute([$email, $password, 'user'])) {
-        echo json_encode(['message' => 'User added successfully']);
+        $newUserId = $pdo->lastInsertId();
+        echo json_encode(['message' => 'User added successfully', 'id' => $newUserId]);
     } else {
         echo json_encode(['message' => 'User addition failed']);
     }
@@ -40,4 +41,5 @@ if ($method === 'GET') {
     echo json_encode(['message' => 'Invalid request method']);
 }
 ?>
+
 
