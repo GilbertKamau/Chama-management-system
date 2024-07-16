@@ -1,19 +1,20 @@
-// viewPayments.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
-const ViewPayments = ({ userId }) => {
+const ViewPayments = () => {
+  const { user } = useAuth();
   const [payments, setPayments] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        if (!userId) {
+        if (!user.id) {
           throw new Error('User ID is required');
         }
         
-        const response = await axios.get(`http://localhost/chama-backend/api/payments.php?user_id=${userId}`);
+        const response = await axios.get(`http://localhost/chama-backend/api/payments.php?user_id=${user.id}`);
         console.log(response.data); // Log the response for debugging
 
         if (Array.isArray(response.data)) {
@@ -28,7 +29,7 @@ const ViewPayments = ({ userId }) => {
     };
 
     fetchPayments();
-  }, [userId]);
+  }, [user.id]);
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -47,3 +48,4 @@ const ViewPayments = ({ userId }) => {
 };
 
 export default ViewPayments;
+

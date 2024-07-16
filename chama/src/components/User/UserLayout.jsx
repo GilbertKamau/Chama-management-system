@@ -1,10 +1,23 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import './UserLayout.css'; // Create and import the CSS file
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import './UserLayout.css';
 
 const UserLayout = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <div className="user-layout">
+      <header className="user-header">
+        <h1>User Dashboard</h1>
+        <button onClick={handleLogout} className="logout-button">Logout</button>
+      </header>
       <nav className="user-sidebar">
         <ul>
           <li><Link to="/user/make-payment">Make Payment</Link></li>
@@ -20,3 +33,4 @@ const UserLayout = () => {
 };
 
 export default UserLayout;
+

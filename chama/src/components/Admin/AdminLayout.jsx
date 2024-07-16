@@ -1,10 +1,23 @@
 import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
+import { Link, Outlet, useNavigate } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import './AdminLayout.css';
 
 const AdminLayout = () => {
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+  };
+
   return (
     <div className="admin-layout">
+      <header className="admin-header">
+        <h1>Admin Dashboard</h1>
+        <button onClick={handleLogout} className="logout-button">Logout</button>
+      </header>
       <nav className="admin-sidebar">
         <ul>
           <li><Link to="/admin/approve-loan">Approve Loan</Link></li>
@@ -22,3 +35,4 @@ const AdminLayout = () => {
 };
 
 export default AdminLayout;
+

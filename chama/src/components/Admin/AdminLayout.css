@@ -1,35 +1,63 @@
 .admin-layout {
-    display: flex;
-  }
-  
-  .admin-sidebar {
-    width: 200px;
-    background-color: #f4f4f4;
-    padding: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  }
-  
-  .admin-sidebar ul {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .admin-sidebar li {
-    margin-bottom: 10px;
-  }
-  
-  .admin-sidebar a {
-    text-decoration: none;
-    color: #333;
-    font-weight: bold;
-  }
-  
-  .admin-sidebar a:hover {
-    text-decoration: underline;
-  }
-  
-  .admin-content {
-    flex-grow: 1;
-    padding: 20px;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #333;
+  color: white;
+}
+
+.admin-header h1 {
+  margin: 0;
+}
+
+.logout-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.logout-button:hover {
+  background-color: #d32f2f;
+}
+
+.admin-sidebar {
+  width: 200px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+.admin-sidebar ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.admin-sidebar li {
+  margin-bottom: 10px;
+}
+
+.admin-sidebar a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+.admin-sidebar a:hover {
+  text-decoration: underline;
+}
+
+.admin-content {
+  flex-grow: 1;
+  padding: 20px;
+}

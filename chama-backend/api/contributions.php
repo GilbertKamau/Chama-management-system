@@ -4,28 +4,34 @@ require_once '../db.php'; // Include your database connection
 
 header('Content-Type: application/json');
 
+session_start(); // Start the session to access session variables
+
 $method = $_SERVER['REQUEST_METHOD'];
 
 if ($method === 'GET') {
     try {
-        if (isset($_GET['user_id'])) {
-            // Fetch contributions for a specific user
-            $user_id = intval($_GET['user_id']);
-            $stmt = $pdo->prepare('SELECT * FROM contributions WHERE user_id = ?');
-            $stmt->execute([$user_id]);
-        } elseif (isset($_GET['start_date']) && isset($_GET['end_date'])) {
-            // Fetch contributions within a specific timeframe
-            $start_date = $_GET['start_date'];
-            $end_date = $_GET['end_date'];
-            $stmt = $pdo->prepare('SELECT * FROM contributions WHERE contribution_date BETWEEN ? AND ?');
-            $stmt->execute([$start_date, $end_date]);
-        } else {
-            // Fetch all contributions by default
-            $stmt = $pdo->query('SELECT * FROM contributions');
+        function isAdmin() {
+            return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
         }
 
-        // Fetch contributions based on the adjusted SQL query
-        $contributions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if (isAdmin()) {
+            $stmt = $pdo->query('SELECT * FROM contributions');
+            $contributions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            if (!isset($_SESSION['user_id'])) {
+                throw new Exception('User ID is required');
+            }
+
+            $user_id = intval($_SESSION['user_id']);
+            if ($user_id <= 0) {
+                throw new Exception('Invalid user ID');
+            }
+
+            $stmt = $pdo->prepare('SELECT * FROM contributions WHERE user_id = ?');
+            $stmt->execute([$user_id]);
+            $contributions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
+
         echo json_encode($contributions);
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);
@@ -35,10 +41,9 @@ if ($method === 'GET') {
         $data = json_decode(file_get_contents('php://input'), true);
         $userId = $data['user_id'];
         $amount = $data['amount'];
-        $contributionDate = $data['contribution_date']; // Optional, use current timestamp if not provided
+        $contributionDate = $data['contribution_date'] ?? date('Y-m-d H:i:s'); // Use current timestamp if not provided
         $description = $data['description'] ?? ''; // Optional description
 
-        // Prepare SQL statement to insert contribution into database
         $stmt = $pdo->prepare('INSERT INTO contributions (user_id, amount, contribution_date, description) VALUES (?, ?, ?, ?)');
 
         if ($stmt->execute([$userId, $amount, $contributionDate, $description])) {
@@ -53,4 +58,5 @@ if ($method === 'GET') {
     echo json_encode(['message' => 'Invalid request method']);
 }
 ?>
+
 
