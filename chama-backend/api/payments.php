@@ -6,42 +6,47 @@ header('Content-Type: application/json');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-session_start(); // Start the session to access session variables
-
 if ($method === 'GET') {
     try {
-        // Implement logic to check if the user is an admin
-        function isAdmin() {
-            return isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
-        }
-
-        if (isAdmin()) {
-            // Fetch all payments if the user is an admin
-            $stmt = $pdo->query('SELECT * FROM payments');
-            $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } else {
-            if (!isset($_GET['user_id'])) {
-                throw new Exception('User ID is required');
-            }
-
-            $userId = intval($_GET['user_id']);
-            if ($userId <= 0) {
-                throw new Exception('Invalid user ID');
-            }
-
+        if (isset($_GET['user_id'])) {
+            // Fetch payments for a specific user
+            $user_id = intval($_GET['user_id']);
             $stmt = $pdo->prepare('SELECT * FROM payments WHERE user_id = ?');
-            $stmt->execute([$userId]);
-            $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $stmt->execute([$user_id]);
+        } else {
+            // Fetch all payments
+            $stmt = $pdo->query('SELECT * FROM payments');
         }
 
+        $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode($payments);
     } catch (Exception $e) {
         echo json_encode(['error' => $e->getMessage()]);
     }
+} elseif ($method === 'POST') {
+    try {
+        $data = json_decode(file_get_contents('php://input'), true);
+        $userId = $data['user_id'];
+        $amount = $data['amount'];
+        $paymentDate = $data['payment_date'] ?? date('Y-m-d H:i:s'); // Use current timestamp if not provided
+        $referenceNumber = $data['reference_number'];
+        $mobileNumber = $data['mobile_number'];
+
+        $stmt = $pdo->prepare('INSERT INTO payments (user_id, amount, payment_date, reference_number, mobile_number) VALUES (?, ?, ?, ?, ?)');
+
+        if ($stmt->execute([$userId, $amount, $paymentDate, $referenceNumber, $mobileNumber])) {
+            echo json_encode(['message' => 'Payment recorded successfully']);
+        } else {
+            echo json_encode(['message' => 'Payment recording failed']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 } else {
-    echo json_encode(['error' => 'Invalid request method']);
+    echo json_encode(['message' => 'Invalid request method']);
 }
 ?>
+
 
 
 

@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 
 const ViewContributions = () => {
+  const { user } = useAuth();
   const [contributions, setContributions] = useState([]);
 
   useEffect(() => {
     const fetchContributions = async () => {
       try {
-        const response = await axios.get('http://localhost/chama-backend/api/contributions.php');
+        let response;
+        if (user && user.role === 'admin') {
+          response = await axios.get('http://localhost/chama-backend/api/contributions.php');
+        } else if (user && user.id) {
+          response = await axios.get(`http://localhost/chama-backend/api/contributions.php?user_id=${user.id}`);
+        } else {
+          throw new Error('User ID is required');
+        }
+        
         if (Array.isArray(response.data)) {
           setContributions(response.data);
         } else {
@@ -20,15 +30,19 @@ const ViewContributions = () => {
       }
     };
 
-    fetchContributions();
-  }, []);
+    if (user) {
+      fetchContributions();
+    }
+  }, [user]);
 
   return (
     <div>
       <h2>View Contributions</h2>
       <ul>
         {contributions.map((contribution) => (
-          <li key={contribution.id}>{`User: ${contribution.user_id}, Amount: ${contribution.amount}, Date: ${contribution.contribution_date}, Description: ${contribution.description}`}</li>
+          <li key={contribution.id}>
+            {`User: ${contribution.user_id}, Amount: ${contribution.amount}, Date: ${contribution.contribution_date}, Description: ${contribution.description}`}
+          </li>
         ))}
       </ul>
     </div>
@@ -36,5 +50,6 @@ const ViewContributions = () => {
 };
 
 export default ViewContributions;
+
 
 

@@ -10,7 +10,7 @@ const ViewPayments = () => {
   useEffect(() => {
     const fetchPayments = async () => {
       try {
-        if (!user.id) {
+        if (!user || !user.id) {
           throw new Error('User ID is required');
         }
         
@@ -28,8 +28,10 @@ const ViewPayments = () => {
       }
     };
 
-    fetchPayments();
-  }, [user.id]);
+    if (user && user.id) {
+      fetchPayments();
+    }
+  }, [user]);
 
   if (error) {
     return <div>Error: {error}</div>;
@@ -48,4 +50,5 @@ const ViewPayments = () => {
 };
 
 export default ViewPayments;
+
 
