@@ -13,7 +13,7 @@ const ViewPayments = () => {
         if (!user || !user.id) {
           throw new Error('User ID is required');
         }
-        
+
         const response = await axios.get(`http://localhost/chama-backend/api/payments.php?user_id=${user.id}`);
         console.log(response.data); // Log the response for debugging
 
@@ -42,7 +42,7 @@ const ViewPayments = () => {
       <h2>Your Payments</h2>
       <ul>
         {payments.map((payment) => (
-          <li key={payment.id}>{`Amount: ${payment.amount}, Date: ${payment.date}`}</li>
+          <li key={payment.id}>{`Amount: ${payment.amount}, Date: ${payment.payment_date}, Reference: ${payment.reference_number}, Mobile: ${payment.mobile_number}`}</li>
         ))}
       </ul>
     </div>
@@ -50,5 +50,7 @@ const ViewPayments = () => {
 };
 
 export default ViewPayments;
+
+
 
 

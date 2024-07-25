@@ -1,82 +1,95 @@
 <?php
-require_once '../cors.php';
-require_once '../db.php';
-require 'vendor/autoload.php'; // Ensure PHPExcel and FPDF are installed via Composer
+require_once '../cors.php'; // Ensure CORS headers are properly handled
+require_once '../db.php'; // Include your database connection
+require '../vendor/autoload.php'; // Ensure you have required libraries installed via Composer
 
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use FPDF;
+use Dompdf\Dompdf;
 
 header('Content-Type: application/json');
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    $stmt = $pdo->query('SELECT * FROM loans');
-    $loans = $stmt->fetchAll();
+$method = $_SERVER['REQUEST_METHOD'];
 
-    $reportType = $_GET['type'] ?? 'excel'; // Default to Excel
+if ($method === 'GET') {
+    $type = $_GET['type'] ?? 'pdf'; // Default to PDF if not specified
 
-    if ($reportType === 'pdf') {
-        generatePDF($loans);
-    } else {
-        generateExcel($loans);
+    try {
+        // Fetch contributions and loans
+        $contributionsStmt = $pdo->query('SELECT * FROM contributions');
+        $contributions = $contributionsStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $loansStmt = $pdo->query('SELECT * FROM loans');
+        $loans = $loansStmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if ($type === 'pdf') {
+            // Generate PDF report
+            $dompdf = new Dompdf();
+            $html = '<h1>Contributions Report</h1><table><tr><th>User ID</th><th>Amount</th><th>Date</th><th>Description</th></tr>';
+            foreach ($contributions as $contribution) {
+                $html .= "<tr><td>{$contribution['user_id']}</td><td>{$contribution['amount']}</td><td>{$contribution['contribution_date']}</td><td>{$contribution['description']}</td></tr>";
+            }
+            $html .= '</table><h1>Loans Report</h1><table><tr><th>User ID</th><th>Amount</th><th>Status</th><th>Date</th></tr>';
+            foreach ($loans as $loan) {
+                $html .= "<tr><td>{$loan['user_id']}</td><td>{$loan['amount']}</td><td>{$loan['status']}</td><td>{$loan['created_at']}</td></tr>";
+            }
+            $html .= '</table>';
+
+            $dompdf->loadHtml($html);
+            $dompdf->setPaper('A4', 'landscape');
+            $dompdf->render();
+            $output = $dompdf->output();
+
+            header('Content-Type: application/pdf');
+            header('Content-Disposition: attachment; filename="report.pdf"');
+            echo $output;
+        } elseif ($type === 'excel') {
+            // Generate Excel report
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+
+            $sheet->setCellValue('A1', 'Contributions Report');
+            $sheet->setCellValue('A2', 'User ID');
+            $sheet->setCellValue('B2', 'Amount');
+            $sheet->setCellValue('C2', 'Date');
+            $sheet->setCellValue('D2', 'Description');
+            $row = 3;
+            foreach ($contributions as $contribution) {
+                $sheet->setCellValue("A{$row}", $contribution['user_id']);
+                $sheet->setCellValue("B{$row}", $contribution['amount']);
+                $sheet->setCellValue("C{$row}", $contribution['contribution_date']);
+                $sheet->setCellValue("D{$row}", $contribution['description']);
+                $row++;
+            }
+
+            $sheet->setCellValue("A{$row}", 'Loans Report');
+            $sheet->setCellValue("A" . ($row + 1), 'User ID');
+            $sheet->setCellValue("B" . ($row + 1), 'Amount');
+            $sheet->setCellValue("C" . ($row + 1), 'Status');
+            $sheet->setCellValue("D" . ($row + 1), 'Date');
+            $row += 2;
+            foreach ($loans as $loan) {
+                $sheet->setCellValue("A{$row}", $loan['user_id']);
+                $sheet->setCellValue("B{$row}", $loan['amount']);
+                $sheet->setCellValue("C{$row}", $loan['status']);
+                $sheet->setCellValue("D{$row}", $loan['created_at']);
+                $row++;
+            }
+
+            $writer = new Xlsx($spreadsheet);
+            $filename = 'report.xlsx';
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header("Content-Disposition: attachment; filename=\"{$filename}\"");
+            $writer->save('php://output');
+        } else {
+            echo json_encode(['message' => 'Invalid report type']);
+        }
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
     }
-}
-
-function generateExcel($loans) {
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-
-    $sheet->setCellValue('A1', 'User ID');
-    $sheet->setCellValue('B1', 'Amount');
-    $sheet->setCellValue('C1', 'Payment Duration');
-    $sheet->setCellValue('D1', 'Mobile Number');
-    $sheet->setCellValue('E1', 'Approved');
-    $sheet->setCellValue('F1', 'Created At');
-
-    $row = 2;
-    foreach ($loans as $loan) {
-        $sheet->setCellValue('A' . $row, $loan['user_id']);
-        $sheet->setCellValue('B' . $row, $loan['amount']);
-        $sheet->setCellValue('C' . $row, $loan['payment_duration']);
-        $sheet->setCellValue('D' . $row, $loan['mobile_number']);
-        $sheet->setCellValue('E' . $row, $loan['approved'] ? 'Yes' : 'No');
-        $sheet->setCellValue('F' . $row, $loan['created_at']);
-        $row++;
-    }
-
-    $writer = new Xlsx($spreadsheet);
-    $filename = 'loan_report_' . date('Y-m-d') . '.xlsx';
-    $writer->save($filename);
-
-    echo json_encode(['message' => 'Excel report generated', 'file' => $filename]);
-}
-
-function generatePDF($loans) {
-    $pdf = new FPDF();
-    $pdf->AddPage();
-    $pdf->SetFont('Arial', 'B', 12);
-
-    $pdf->Cell(20, 10, 'User ID', 1);
-    $pdf->Cell(30, 10, 'Amount', 1);
-    $pdf->Cell(40, 10, 'Payment Duration', 1);
-    $pdf->Cell(50, 10, 'Mobile Number', 1);
-    $pdf->Cell(20, 10, 'Approved', 1);
-    $pdf->Cell(30, 10, 'Created At', 1);
-    $pdf->Ln();
-
-    foreach ($loans as $loan) {
-        $pdf->Cell(20, 10, $loan['user_id'], 1);
-        $pdf->Cell(30, 10, $loan['amount'], 1);
-        $pdf->Cell(40, 10, $loan['payment_duration'], 1);
-        $pdf->Cell(50, 10, $loan['mobile_number'], 1);
-        $pdf->Cell(20, 10, $loan['approved'] ? 'Yes' : 'No', 1);
-        $pdf->Cell(30, 10, $loan['created_at'], 1);
-        $pdf->Ln();
-    }
-
-    $filename = 'loan_report_' . date('Y-m-d') . '.pdf';
-    $pdf->Output('F', $filename);
-
-    echo json_encode(['message' => 'PDF report generated', 'file' => $filename]);
+} else {
+    echo json_encode(['message' => 'Invalid request method']);
 }
 ?>
+

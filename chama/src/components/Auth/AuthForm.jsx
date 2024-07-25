@@ -6,12 +6,12 @@ import './AuthForm.css';
 const AuthForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false); // State to switch between login and signup
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const action = isSignUp ? 'signup' : 'login';
+    const action = isSignUp ? 'signup' : 'login'; // Determine action based on state
 
     try {
       const response = await axios.post('http://localhost/chama-backend/api/auth.php', {
@@ -20,19 +20,13 @@ const AuthForm = () => {
         password,
       });
 
-      if (response.data.message === 'Login successful') {
-        const role = response.data.role;
-        if (role === 'admin') {
+      if (response.data.message === 'Login successful' || response.data.message === 'User created') {
+        const user = response.data.user; // Ensure we get the user data
+        localStorage.setItem('user', JSON.stringify(user)); // Store user data in localStorage
+        if (user.role === 'admin') {
           navigate('/admin'); // Redirect to admin dashboard
         } else {
           navigate('/user'); // Redirect to user dashboard
-        }
-      } else if (response.data.message === 'User created') {
-        const role = response.data.role;
-        if (role === 'admin') {
-          navigate('/admin'); // Redirect to admin dashboard after signup
-        } else {
-          navigate('/user'); // Redirect to user dashboard after signup
         }
       } else {
         console.error(response.data.message);
@@ -55,12 +49,14 @@ const AuthForm = () => {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Email"
+            required
           />
           <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
+            required
           />
           <button type="submit">{isSignUp ? 'Sign Up' : 'Login'}</button>
         </form>
@@ -86,6 +82,7 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
+
 
 
 

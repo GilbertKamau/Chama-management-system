@@ -28,7 +28,7 @@ if ($method === 'GET') {
         $data = json_decode(file_get_contents('php://input'), true);
         $userId = $data['user_id'];
         $amount = $data['amount'];
-        $paymentDate = $data['payment_date'] ?? date('Y-m-d H:i:s'); // Use current timestamp if not provided
+        $paymentDate = date('Y-m-d H:i:s'); // Use current timestamp
         $referenceNumber = $data['reference_number'];
         $mobileNumber = $data['mobile_number'];
 
@@ -46,6 +46,9 @@ if ($method === 'GET') {
     echo json_encode(['message' => 'Invalid request method']);
 }
 ?>
+
+
+
 
 
 

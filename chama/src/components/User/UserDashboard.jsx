@@ -2,7 +2,7 @@ import React from 'react';
 import MakePayment from './MakePayment';
 import RequestLoan from './RequestLoan';
 import ViewPayments from './ViewPayments';
-
+import UserDashboard from './UserDashboard.css';
 const UserDashboard = () => {
   return (
     <div>

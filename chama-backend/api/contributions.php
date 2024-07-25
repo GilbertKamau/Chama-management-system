@@ -15,9 +15,11 @@ if ($method === 'GET') {
         }
 
         if (isAdmin()) {
+            // Admin can view all contributions
             $stmt = $pdo->query('SELECT * FROM contributions');
             $contributions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         } else {
+            // Regular users can view only their contributions
             if (!isset($_SESSION['user_id'])) {
                 throw new Exception('User ID is required');
             }
@@ -58,5 +60,6 @@ if ($method === 'GET') {
     echo json_encode(['message' => 'Invalid request method']);
 }
 ?>
+
 
 

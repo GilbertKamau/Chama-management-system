@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import './AdminLayout.css';
-
+import Footer from '../Footer.jsx';
 const AdminLayout = () => {
   const { logout } = useAuth();
   const navigate = useNavigate();
@@ -16,6 +16,7 @@ const AdminLayout = () => {
     <div className="admin-layout">
       <header className="admin-header">
         <h1>Admin Dashboard</h1>
+        <p>Welcome Admin!</p>
         <button onClick={handleLogout} className="logout-button">Logout</button>
       </header>
       <nav className="admin-sidebar">
@@ -30,6 +31,7 @@ const AdminLayout = () => {
       <main className="admin-content">
         <Outlet /> {/* Render the selected component here */}
       </main>
+      <Footer /> 
     </div>
   );
 };

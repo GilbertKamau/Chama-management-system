@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import Footer from '../Footer.jsx';
 import './UserLayout.css';
 
 const UserLayout = () => {
@@ -16,6 +17,7 @@ const UserLayout = () => {
     <div className="user-layout">
       <header className="user-header">
         <h1>User Dashboard</h1>
+        <p>Welcome! </p>
         <button onClick={handleLogout} className="logout-button">Logout</button>
       </header>
       <nav className="user-sidebar">
@@ -28,6 +30,7 @@ const UserLayout = () => {
       <main className="user-content">
         <Outlet /> {/* Render the selected component here */}
       </main>
+      <Footer /> 
     </div>
   );
 };

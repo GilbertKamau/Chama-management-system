@@ -3,7 +3,7 @@ import ApproveLoan from './ApproveLoan';
 import ManageUsers from './ManageUsers';
 import ViewContributions from './ViewContributions';
 import DisburseLoans from './DisburseLoans';
-
+import AdminDashboard from './AdminDashboard.css';
 const AdminDashboard = () => {
   return (
     <div>

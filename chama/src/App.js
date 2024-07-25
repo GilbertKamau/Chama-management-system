@@ -11,7 +11,8 @@ import DisburseLoans from './components/Admin/DisburseLoans';
 import MakePayment from './components/User/MakePayment';
 import RequestLoan from './components/User/RequestLoan';
 import ViewPayments from './components/User/ViewPayments';
-import { AuthProvider } from './contexts/AuthContext';
+import { AuthProvider } from  './contexts/AuthContext';
+import Reports from './components/Admin/Reports';
 
 const App = () => {
   return (
@@ -29,6 +30,7 @@ const App = () => {
           <Route path="manage-users" element={<ManageUsers />} />
           <Route path="view-contributions" element={<ViewContributions />} />
           <Route path="disburse-loans" element={<DisburseLoans />} />
+          <Route path="reports" element={<Reports />} />
 
         </Route>
       </Routes>

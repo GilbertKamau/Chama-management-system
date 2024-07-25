@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useAuth } from '../../contexts/AuthContext';
 
 const MakePayment = () => {
-  const { user } = useAuth();
   const [amount, setAmount] = useState('');
   const [referenceNumber, setReferenceNumber] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
@@ -11,6 +9,8 @@ const MakePayment = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const user = JSON.parse(localStorage.getItem('user')); // Get user data from localStorage
+
     if (!user || !user.id) {
       setMessage('User not authenticated');
       return;
@@ -63,6 +63,8 @@ const MakePayment = () => {
 };
 
 export default MakePayment;
+
+
 
 
 
