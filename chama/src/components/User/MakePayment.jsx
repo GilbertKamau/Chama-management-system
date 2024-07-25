@@ -24,6 +24,7 @@ const MakePayment = () => {
         mobile_number: mobileNumber
       });
       setMessage(response.data.message);
+      
     } catch (error) {
       console.error('Error making payment:', error);
       setMessage('Payment failed');

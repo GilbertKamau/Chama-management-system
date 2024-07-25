@@ -1,30 +1,57 @@
+/* Ensure this CSS file is included in your project */
+
 .admin-layout {
   display: flex;
-  background-image: url('../../../public/images/image2.png'); /* Add the path to your image */
+  flex-direction: column;
+  height: 100vh;
   background-size: cover;
-  background-position: center;
+}
+
+.admin-header {
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent header */
+  padding: 10px;
+  text-align: center;
+  position: relative;
+  height: 60px; /* Fixed header height */
+}
+
+.admin-footer {
+  background: rgba(255, 255, 255, 0.9); /* Semi-transparent footer */
+  padding: 10px;
+  text-align: center;
+  height: 60px; /* Fixed footer height */
+  font-weight: bold;
+}
+
+.admin-body {
+  display: flex;
+  flex: 1;
+  margin-top: 60px; /* Same as header height */
+  margin-bottom: 60px; /* Same as footer height */
 }
 
 .admin-sidebar {
-  width: 200px;
-  background-color: rgba(244, 244, 244, 0.9); /* Make the background slightly transparent */
-  padding: 20px;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  background: rgba(0, 0, 0, 0.5); /* Semi-transparent sidebar */
+  padding: 10px;
+  position: fixed;
+  top: 80px; /* Same as header height */
+  bottom: 60px; /* Same as footer height */
+  overflow-y: auto; /* Enable scrolling if content exceeds the height */
 }
 
 .admin-sidebar ul {
-  list-style-type: none;
+  list-style: none;
   padding: 0;
 }
 
 .admin-sidebar li {
-  margin-bottom: 10px;
+  margin: 10px 0;
 }
 
 .admin-sidebar a {
+  color: white;
   text-decoration: none;
-  color: #333;
-  font-weight: bold;
 }
 
 .admin-sidebar a:hover {
@@ -32,8 +59,17 @@
 }
 
 .admin-content {
-  flex-grow: 1;
+  margin-left: 290px; /* Same as sidebar width */
   padding: 20px;
-  background-color: rgba(255, 255, 255, 0.9); /* Make the content background slightly transparent */
+  flex: 1;
 }
+
+.logout-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+
+
 

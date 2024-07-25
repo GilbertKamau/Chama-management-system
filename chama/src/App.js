@@ -10,7 +10,6 @@ import ViewContributions from './components/Admin/ViewContributions';
 import DisburseLoans from './components/Admin/DisburseLoans';
 import MakePayment from './components/User/MakePayment';
 import RequestLoan from './components/User/RequestLoan';
-import ViewPayments from './components/User/ViewPayments';
 import { AuthProvider } from  './contexts/AuthContext';
 import Reports from './components/Admin/Reports';
 
@@ -23,7 +22,6 @@ const App = () => {
         <Route path="/user" element={<UserLayout />}>
           <Route path="make-payment" element={<MakePayment />} />
           <Route path="request-loan" element={<RequestLoan />} />
-          <Route path="view-payments" element={<ViewPayments />} />
         </Route>
         <Route path="/admin" element={<AdminLayout />}>
           <Route path="approve-loan" element={<ApproveLoan />} />

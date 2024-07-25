@@ -60,15 +60,23 @@ if ($method === 'POST') {
             session_start();
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_role'] = $user['role'];
-            echo json_encode(['message' => 'Login successful', 'user' => ['id' => $user['id'], 'email' => $user['email'], 'role' => $user['role']]]);
+            echo json_encode([
+                'message' => 'Login successful',
+                'user' => [
+                    'id' => $user['id'],
+                    'email' => $user['email'],
+                    'role' => $user['role']
+                ]
+            ]);
         } else {
             echo json_encode(['message' => 'Invalid credentials or user not found']);
         }
     }
 }
+
+
+
 ?>
-
-
 
 
 

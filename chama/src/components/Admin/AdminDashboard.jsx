@@ -9,8 +9,11 @@ const AdminDashboard = () => {
     <div>
       <h1>Admin Dashboard</h1>
       <ApproveLoan />
+      <hr />
       <ManageUsers />
+      <hr />
       <ViewContributions />
+      <hr />
       <DisburseLoans />
     </div>
   );

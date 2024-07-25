@@ -7,7 +7,7 @@ const ViewContributions = () => {
   useEffect(() => {
     const fetchContributions = async () => {
       try {
-        const response = await axios.get('http://localhost/chama-backend/api/contributions.php');
+        const response = await axios.get('http://localhost/chama-backend/api/payments.php');
         if (Array.isArray(response.data)) {
           setContributions(response.data);
         } else {

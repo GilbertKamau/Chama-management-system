@@ -70,6 +70,7 @@ const ManageUsers = () => {
           <li key={user.id}>
             {user.email} ({user.role})
             <button onClick={() => handleRemoveUser(user.id)}>Remove User</button>
+            <hr />
           </li>
         ))}
       </ul>

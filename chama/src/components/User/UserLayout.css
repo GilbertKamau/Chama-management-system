@@ -1,20 +1,60 @@
+/* UserLayout.css */
 .user-layout {
   display: flex;
-  background-image: url('../../../public/images/image2.png'); /* Add the path to your image */
+  flex-direction: column;
+  height: 100vh;
+  background-image: url('../../../public/images/image2.png'); /* Background image for the whole layout */
   background-size: cover;
   background-position: center;
+  color: white; /* Default text color for the entire layout */
+}
+
+.user-header {
+  background-color: rgba(0, 0, 0, 0.8); /* Darken header with semi-transparent black */
+  background-size: cover;
+  height: 60px; /* Adjust height as needed */
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  font-weight: bold; /* Make header text bold */
+}
+
+.user-footer {
+  background-color: rgba(0, 0, 0, 0.8); /* Darken footer with semi-transparent black */
+  background-size: cover;
+  height: 60px; /* Adjust height as needed */
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  font-weight: bold; /* Make footer text bold */
+}
+
+.user-body {
+  display: flex;
+  flex: 1;
+  margin-top: 60px; /* Ensure content starts below the header */
+  margin-bottom: 60px; /* Ensure content stops above the footer */
 }
 
 .user-sidebar {
   width: 200px;
-  background-color: rgba(244, 244, 244, 0.9); /* Make the background slightly transparent */
+  background-color: rgba(244, 244, 244, 0.9); /* Slightly transparent background */
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  top:0px;
+  bottom: 100px;
 }
 
 .user-sidebar ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
 .user-sidebar li {
@@ -24,7 +64,7 @@
 .user-sidebar a {
   text-decoration: none;
   color: #333;
-  font-weight: bold;
+  font-weight: bold; /* Make sidebar link text bold */
 }
 
 .user-sidebar a:hover {
@@ -34,7 +74,13 @@
 .user-content {
   flex-grow: 1;
   padding: 20px;
-  background-color: rgba(255, 255, 255, 0.9); /* Make the content background slightly transparent */
+  background-color: transparent; /* Remove white background and make it transparent */
+  margin-left: 220px; /* Add margin to ensure space between sidebar and content */
 }
+
+
+
+
+
 
   

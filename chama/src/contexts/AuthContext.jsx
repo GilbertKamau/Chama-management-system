@@ -10,10 +10,14 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
     if (savedUser) {
-      const parsedUser = JSON.parse(savedUser);
-      setUser(parsedUser);
-      sessionStorage.setItem('user_role', parsedUser.role);
-      sessionStorage.setItem('user_id', parsedUser.id);
+      try {
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+        sessionStorage.setItem('user_role', parsedUser.role);
+        sessionStorage.setItem('user_id', parsedUser.id);
+      } catch (error) {
+        console.error('Error parsing user from localStorage:', error);
+      }
     }
   }, []);
 
@@ -40,6 +44,7 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
 
 
 

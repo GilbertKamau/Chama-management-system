@@ -20,13 +20,19 @@ const AuthForm = () => {
         password,
       });
 
+      console.log('Response data:', response.data); // Log the response data for debugging
+
       if (response.data.message === 'Login successful' || response.data.message === 'User created') {
         const user = response.data.user; // Ensure we get the user data
-        localStorage.setItem('user', JSON.stringify(user)); // Store user data in localStorage
-        if (user.role === 'admin') {
-          navigate('/admin'); // Redirect to admin dashboard
+        if (user && user.email && user.role) { // Check if user data is valid
+          localStorage.setItem('user', JSON.stringify(user)); // Store user data in localStorage
+          if (user.role === 'admin') {
+            navigate('/admin'); // Redirect to admin dashboard
+          } else {
+            navigate('/user'); // Redirect to user dashboard
+          }
         } else {
-          navigate('/user'); // Redirect to user dashboard
+          console.error('User data is not properly defined:', user);
         }
       } else {
         console.error(response.data.message);
@@ -82,6 +88,8 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
+
+
 
 
 
