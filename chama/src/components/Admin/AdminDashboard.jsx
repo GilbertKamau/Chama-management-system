@@ -4,6 +4,9 @@ import ManageUsers from './ManageUsers';
 import ViewContributions from './ViewContributions';
 import DisburseLoans from './DisburseLoans';
 import AdminDashboard from './AdminDashboard.css';
+import Reports from './Reports'
+
+
 const AdminDashboard = () => {
   return (
     <div>
@@ -15,6 +18,8 @@ const AdminDashboard = () => {
       <ViewContributions />
       <hr />
       <DisburseLoans />
+      <hr />
+      <Reports />
     </div>
   );
 };

@@ -1,35 +1,29 @@
 <?php
-require_once '../db.php';
-require_once '../cors.php';
+require_once '../cors.php'; // Ensure CORS headers are properly handled
+require_once '../db.php'; // Include your database connection
+
 header('Content-Type: application/json');
 
-$type = $_GET['type'] ?? 'loans';
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    try {
+        // Fetch all payments
+        $stmtPayments = $pdo->query('SELECT * FROM payments');
+        $payments = $stmtPayments->fetchAll(PDO::FETCH_ASSOC);
 
-if ($type === 'loans') {
-    $stmt = $pdo->query('SELECT user_id, amount, payment_duration, mobile_number, status, loan_date FROM loans');
-    $loans = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($loans);
-} elseif ($type === 'contributions') {
-    $stmt = $pdo->query('SELECT user_id, amount, payment_date FROM contributions');
-    $contributions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    echo json_encode($contributions);
+        // Fetch all loans
+        $stmtLoans = $pdo->query('SELECT * FROM loans');
+        $loans = $stmtLoans->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'payments' => $payments,
+            'loans' => $loans
+        ]);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 } else {
-    echo json_encode(['message' => 'Invalid report type']);
+    echo json_encode(['error' => 'Invalid request method']);
 }
 ?>
 
-
-  return (
-    <div>
-      <h2>Generate Reports</h2>
-      <button onClick={() => fetchReport('loans')}>Fetch Loan Report</button>
-      <button onClick={() => fetchReport('contributions')}>Fetch Contribution Report</button>
-
-      {error && <p>{error}</p>}
-
-      <h3>Loan Report</h3>
-      {loans.length > 0 ? (
-        <table border="1">
-          <thead>
-            <tr>
 

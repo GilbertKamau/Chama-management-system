@@ -30,8 +30,8 @@ const ApproveLoan = () => {
         status,
       });
       if (response.data.message === 'Loan status updated successfully') {
-        setLoanRequests((prevRequests) =>
-          prevRequests.map((request) =>
+        setLoanRequests(prevRequests =>
+          prevRequests.map(request =>
             request.id === id ? { ...request, status } : request
           )
         );
@@ -51,25 +51,29 @@ const ApproveLoan = () => {
     handleUpdateStatus(id, 'Denied');
   };
 
+  const getNameFromEmail = (email) => {
+    if (!email) return 'Unknown';
+    const namePart = email.split('@')[0];
+    return namePart.charAt(0).toUpperCase() + namePart.slice(1);
+  };
+
   return (
     <div>
       <h2>Approve Loan</h2>
-      {loanRequests.length > 0 ? (
-        <ul>
-          {loanRequests.map((request) => (
-            <li key={request.id}>
-              {`User: ${request.user_id}, Amount: ${request.amount}, Status: ${request.status}`}
-              <button onClick={() => handleApprove(request.id)}>Approve</button>
-              <button onClick={() => handleDeny(request.id)}>Deny</button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>No loan requests available.</p>
-      )}
+      <ul>
+        {loanRequests.map((request) => (
+          <li key={request.id}>
+            {`User: ${getNameFromEmail(request.user_email)}, Amount: ${request.amount}, Status: ${request.status}`}
+            <button onClick={() => handleApprove(request.id)}>Approve</button>
+            <button onClick={() => handleDeny(request.id)}>Deny</button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
 export default ApproveLoan;
+
+
 

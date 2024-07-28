@@ -26,6 +26,13 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
     sessionStorage.setItem('user_role', userData.role);
     sessionStorage.setItem('user_id', userData.id);
+
+    // Redirect based on user role
+    if (userData.role === 'admin') {
+      navigate('/admin');
+    } else {
+      navigate('/user');
+    }
   };
 
   const logout = () => {
@@ -44,6 +51,10 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
+
+
+
 
 
 

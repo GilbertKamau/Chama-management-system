@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { useAuth } from '../../contexts/AuthContext';
 import './AuthForm.css';
 
 const AuthForm = () => {
@@ -8,6 +9,7 @@ const AuthForm = () => {
   const [password, setPassword] = useState('');
   const [isSignUp, setIsSignUp] = useState(false); // State to switch between login and signup
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,23 +22,23 @@ const AuthForm = () => {
         password,
       });
 
-      console.log('Response data:', response.data); // Log the response data for debugging
+      const responseData = response.data;
+      console.log('Response data:', responseData);
 
-      if (response.data.message === 'Login successful' || response.data.message === 'User created') {
-        const user = response.data.user; // Ensure we get the user data
-        if (user && user.email && user.role) { // Check if user data is valid
-          localStorage.setItem('user', JSON.stringify(user)); // Store user data in localStorage
-          if (user.role === 'admin') {
-            navigate('/admin'); // Redirect to admin dashboard
-          } else {
-            navigate('/user'); // Redirect to user dashboard
-          }
+      if (responseData.message === 'Login successful' || responseData.message === 'User created') {
+        const user = responseData.user; // Get the user data from the response
+        console.log('User data:', user);
+        login(user); // Update the Auth context with the user data
+
+        // Navigate to the appropriate dashboard based on the user role
+        if (user.role === 'admin') {
+          navigate('/admin');
         } else {
-          console.error('User data is not properly defined:', user);
+          navigate('/user');
         }
       } else {
-        console.error(response.data.message);
-        if (response.data.message === 'Invalid credentials or user not found') {
+        console.error('Error message:', responseData.message);
+        if (responseData.message === 'Invalid credentials or user not found') {
           setIsSignUp(true); // Switch to signup if login fails
         }
       }
@@ -66,15 +68,14 @@ const AuthForm = () => {
           />
           <button type="submit">{isSignUp ? 'Sign Up' : 'Login'}</button>
         </form>
-        {isSignUp && (
+        {isSignUp ? (
           <p>
             Already have an account?{' '}
             <button className="switch-button" onClick={() => setIsSignUp(false)}>
               Switch to Login
             </button>
           </p>
-        )}
-        {!isSignUp && (
+        ) : (
           <p>
             New user?{' '}
             <button className="switch-button" onClick={() => setIsSignUp(true)}>
@@ -88,6 +89,8 @@ const AuthForm = () => {
 };
 
 export default AuthForm;
+
+
 
 
 

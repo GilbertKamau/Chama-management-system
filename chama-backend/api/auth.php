@@ -4,25 +4,43 @@ require_once '../db.php';
 header('Content-Type: application/json');
 
 // Function to create an admin user if not exists
-function createAdminUser($pdo) {
-    $adminEmail = 'roro@r.com';
-    $adminPassword = '1234';
-    $hashedPassword = password_hash($adminPassword, PASSWORD_DEFAULT);
+function createAdminUsers($pdo, $admins) {
+    foreach ($admins as $admin) {
+        $adminEmail = $admin['email'];
+        $adminPassword = $admin['password'];
+        $hashedPassword = password_hash($adminPassword, PASSWORD_DEFAULT);
 
-    // Check if the admin user already exists
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
-    $stmt->execute([$adminEmail]);
-    $admin = $stmt->fetch();
+        // Check if the admin user already exists
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE email = ?');
+        $stmt->execute([$adminEmail]);
+        $existingAdmin = $stmt->fetch();
 
-    if (!$admin) {
-        // Create admin user
-        $stmt = $pdo->prepare('INSERT INTO users (email, password, role) VALUES (?, ?, ?)');
-        $stmt->execute([$adminEmail, $hashedPassword, 'admin']);
+        if (!$existingAdmin) {
+            // Create admin user
+            $stmt = $pdo->prepare('INSERT INTO users (email, password, role) VALUES (?, ?, ?)');
+            if ($stmt->execute([$adminEmail, $hashedPassword, 'admin'])) {
+                // Optionally log this somewhere instead of echoing
+                error_log("Admin user {$adminEmail} created successfully.");
+            } else {
+                // Optionally log this somewhere instead of echoing
+                error_log("Failed to create admin user {$adminEmail}.");
+            }
+        } else {
+            // Optionally log this somewhere instead of echoing
+            error_log("Admin user {$adminEmail} already exists.");
+        }
     }
 }
 
-// Create admin user on script load
-createAdminUser($pdo);
+// Define your admin users
+$adminUsers = [
+    ['email' => 'roro@r.com', 'password' => '1234'],
+    ['email' => 'joan@k.com', 'password' => '1111'],
+    // Add more admin users as needed
+];
+
+// Create admin users on script load
+createAdminUsers($pdo, $adminUsers);
 
 $method = $_SERVER['REQUEST_METHOD'];
 
@@ -60,22 +78,12 @@ if ($method === 'POST') {
             session_start();
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['user_role'] = $user['role'];
-            echo json_encode([
-                'message' => 'Login successful',
-                'user' => [
-                    'id' => $user['id'],
-                    'email' => $user['email'],
-                    'role' => $user['role']
-                ]
-            ]);
+            echo json_encode(['message' => 'Login successful', 'user' => ['id' => $user['id'], 'email' => $user['email'], 'role' => $user['role']]]);
         } else {
             echo json_encode(['message' => 'Invalid credentials or user not found']);
         }
     }
 }
-
-
-
 ?>
 
 

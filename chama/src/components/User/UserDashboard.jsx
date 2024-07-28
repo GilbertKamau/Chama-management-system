@@ -1,7 +1,7 @@
 import React from 'react';
 import MakePayment from './MakePayment';
 import RequestLoan from './RequestLoan';
-import ViewPayments from './ViewPayments';
+import Notifications from './Notifications';
 import UserDashboard from './UserDashboard.css';
 const UserDashboard = () => {
   return (
@@ -9,7 +9,7 @@ const UserDashboard = () => {
       <h1>User Dashboard</h1>
       <MakePayment />
       <RequestLoan />
-      <ViewPayments />
+      <Notifications />
     </div>
   );
 };

@@ -17,14 +17,13 @@ const UserLayout = () => {
     <div className="user-layout">
       <header className="user-header">
         <h1>User Dashboard</h1>
-        <p>Welcome! </p>
         <button onClick={handleLogout} className="logout-button">Logout</button>
       </header>
       <nav className="user-sidebar">
         <ul>
           <li><Link to="/user/make-payment">Make Payment</Link></li>
           <li><Link to="/user/request-loan">Request Loan</Link></li>
-          <li><Link to="/user/view-payments">View Payments</Link></li>
+          <li><Link to="/user/notifications">Notifications</Link></li>
         </ul>
       </nav>
       <main className="user-content">
