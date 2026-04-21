@@ -26,18 +26,13 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
     sessionStorage.setItem('user_role', userData.role);
     sessionStorage.setItem('user_id', userData.id);
-
-    // Redirect based on user role
-    if (userData.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/user');
-    }
+    // AuthForm handles navigation after login
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    localStorage.removeItem('token');   // Clear Sanctum Bearer token
     sessionStorage.removeItem('user_role');
     sessionStorage.removeItem('user_id');
     navigate('/');

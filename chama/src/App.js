@@ -1,4 +1,4 @@
-import React from  'react';
+import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
@@ -11,35 +11,40 @@ import DisburseLoans from './components/Admin/DisburseLoans';
 import MakePayment from './components/User/MakePayment';
 import Notifications from './components/User/Notifications';
 import RequestLoan from './components/User/RequestLoan';
-import { AuthProvider } from  './contexts/AuthContext';
+import { AuthProvider } from './contexts/AuthContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 import Reports from './components/Admin/Reports';
+import ConstitutionUpload from './components/Admin/ConstitutionUpload';
+import SuperAdminDashboard from './components/Admin/SuperAdminDashboard';
 
 const App = () => {
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/signup" element={<SignUpPage />} />
-        <Route path="/user" element={<UserLayout />}>
-          <Route path="make-payment" element={<MakePayment />} />
-          <Route path="request-loan" element={<RequestLoan />} />
-          <Route path="notifications" element={<Notifications/>} />
-        </Route>
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route path="approve-loan" element={<ApproveLoan />} />
-          <Route path="manage-users" element={<ManageUsers />} />
-          <Route path="view-contributions" element={<ViewContributions />} />
-          <Route path="disburse-loans" element={<DisburseLoans />} />
-          <Route path="reports" element={<Reports />} />
+    <LanguageProvider>
+      <AuthProvider>
+        <Routes>
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
 
-        </Route>
-      </Routes>
-    </AuthProvider>
+          <Route path="/user" element={<UserLayout />}>
+            <Route path="make-payment"  element={<MakePayment />} />
+            <Route path="request-loan"  element={<RequestLoan />} />
+            <Route path="notifications" element={<Notifications />} />
+          </Route>
+
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="approve-loan"        element={<ApproveLoan />} />
+            <Route path="manage-users"        element={<ManageUsers />} />
+            <Route path="view-contributions"  element={<ViewContributions />} />
+            <Route path="disburse-loans"      element={<DisburseLoans />} />
+            <Route path="reports"             element={<Reports />} />
+            <Route path="constitution"        element={<ConstitutionUpload />} />
+          </Route>
+
+          <Route path="/super-admin" element={<SuperAdminDashboard />} />
+        </Routes>
+      </AuthProvider>
+    </LanguageProvider>
   );
 };
 
 export default App;
-
-
-
-

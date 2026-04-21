@@ -1,100 +1,120 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { useNavigate, Link } from 'react-router-dom';
+import { login as apiLogin } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useTranslation } from '../../contexts/LanguageContext';
 import './AuthForm.css';
 
 const AuthForm = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [isSignUp, setIsSignUp] = useState(false); // State to switch between login and signup
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t, lang, setLang } = useTranslation();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const action = isSignUp ? 'signup' : 'login'; // Determine action based on state
+    setError('');
+    setLoading(true);
 
     try {
-      const response = await axios.post('http://localhost/chama-backend/api/auth.php', {
-        action,
-        email,
-        password,
-      });
+      const response = await apiLogin({ email, password });
+      const { access_token, user } = response.data;
 
-      const responseData = response.data;
-      console.log('Response data:', responseData);
+      // Save the Sanctum token for the axios interceptor
+      localStorage.setItem('token', access_token);
 
-      if (responseData.message === 'Login successful' || responseData.message === 'User created') {
-        const user = responseData.user; // Get the user data from the response
-        console.log('User data:', user);
-        login(user); // Update the Auth context with the user data
+      // Update AuthContext (triggers role-based redirect)
+      login(user);
 
-        // Navigate to the appropriate dashboard based on the user role
-        if (user.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/user');
-        }
+      // Redirect based on role
+      if (user.role === 'super_admin') {
+        navigate('/super-admin');
+      } else if (user.role === 'admin') {
+        navigate('/admin');
       } else {
-        console.error('Error message:', responseData.message);
-        if (responseData.message === 'Invalid credentials or user not found') {
-          setIsSignUp(true); // Switch to signup if login fails
-        }
+        navigate('/user');
       }
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Login failed. Check your credentials.';
+      setError(msg);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-container">
       <div className="auth-card">
-        <h1>{isSignUp ? 'Sign Up' : 'Login'}</h1>
+        <div className="auth-lang-toggle">
+          <button
+            className="btn-secondary"
+            onClick={() => setLang(lang === 'en' ? 'sw' : 'en')}
+            type="button"
+          >
+            {lang === 'en' ? '🇰🇪 Swahili' : '🇬🇧 English'}
+          </button>
+        </div>
+
+        <h1>{t('login')}</h1>
+        <p style={{ color: 'var(--text-secondary)', marginBottom: '1.5rem' }}>
+          {t('welcome')}
+        </p>
+
+        {error && (
+          <p style={{
+            color: 'var(--error)',
+            background: '#fdecea',
+            padding: '0.75rem 1rem',
+            borderRadius: 'var(--border-radius)',
+            marginBottom: '1rem',
+            fontWeight: 600
+          }}>
+            ❌ {error}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit}>
           <input
+            id="login-email"
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
+            placeholder={t('email')}
             required
+            autoComplete="email"
           />
           <input
+            id="login-password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
+            placeholder={t('password')}
             required
+            autoComplete="current-password"
           />
-          <button type="submit">{isSignUp ? 'Sign Up' : 'Login'}</button>
+          <button
+            id="login-submit-btn"
+            className="btn-primary"
+            type="submit"
+            disabled={loading}
+            style={{ width: '100%' }}
+          >
+            {loading ? 'Logging in…' : t('login')}
+          </button>
         </form>
-        {isSignUp ? (
-          <p>
-            Already have an account?{' '}
-            <button className="switch-button" onClick={() => setIsSignUp(false)}>
-              Switch to Login
-            </button>
-          </p>
-        ) : (
-          <p>
-            New user?{' '}
-            <button className="switch-button" onClick={() => setIsSignUp(true)}>
-              Sign Up
-            </button>
-          </p>
-        )}
+
+        <p style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          {lang === 'en' ? "Don't have an account?" : 'Huna akaunti?'}{' '}
+          <Link to="/signup" style={{ color: 'var(--primary-color)', fontWeight: 700 }}>
+            {t('signup')}
+          </Link>
+        </p>
       </div>
     </div>
   );
 };
 
 export default AuthForm;
-
-
-
-
-
-
-
-
-

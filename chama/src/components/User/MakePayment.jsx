@@ -1,72 +1,103 @@
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useAuth } from '../../contexts/AuthContext';
+import { makePayment } from '../../services/api';
+import { useTranslation } from '../../contexts/LanguageContext';
 
 const MakePayment = () => {
-  const { user } = useAuth();
+  const { t } = useTranslation();
   const [amount, setAmount] = useState('');
   const [paymentReference, setPaymentReference] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
+    setSuccess('');
 
     try {
-      const response = await axios.post('http://localhost/chama-backend/api/payments.php', {
-        user_id: user.id, // Send user ID
+      const response = await makePayment({
         amount,
         payment_reference: paymentReference,
         mobile_number: mobileNumber,
       });
 
-      if (response.data.message === 'Payment recorded successfully') {
-        setSuccess('Payment recorded successfully');
+      if (response.data.message.includes('success')) {
+        setSuccess(t('upload_success'));
         setAmount('');
         setPaymentReference('');
         setMobileNumber('');
       } else {
         setError(response.data.message);
       }
-    } catch (error) {
-      console.error('Error making payment:', error);
-      setError('An error occurred while making the payment');
+    } catch (err) {
+      console.error('Error making payment:', err);
+      setError(t('upload_failed'));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h2>Make Payment</h2>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
-      {success && <p style={{ color: 'green' }}>{success}</p>}
+    <div className="card" style={{ maxWidth: '500px', margin: '2rem auto' }}>
+      <h2>💸 {t('make_payment')}</h2>
+      
+      {error && <p className="error-text" style={{ background: '#ffebee', padding: '10px', borderRadius: '4px', marginBottom: '1rem', color: 'var(--error)' }}>{error}</p>}
+      {success && <p className="success-text" style={{ background: '#e8f5e9', padding: '10px', borderRadius: '4px', marginBottom: '1rem', color: 'var(--success)' }}>{success}</p>}
+      
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          value={paymentReference}
-          onChange={(e) => setPaymentReference(e.target.value)}
-          placeholder="Payment Reference"
-          required
-        />
-        <input
-          type="number"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Amount"
-          required
-        />
-        <input
-          type="text"
-          value={mobileNumber}
-          onChange={(e) => setMobileNumber(e.target.value)}
-          placeholder="Mobile Number"
-          required
-        />
-        <button type="submit">Make Payment</button>
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600 }}>{t('amount')} (KES)</label>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="e.g. 1000"
+            required
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '1rem' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600 }}>{t('description')} / Ref</label>
+          <input
+            type="text"
+            value={paymentReference}
+            onChange={(e) => setPaymentReference(e.target.value)}
+            placeholder="M-Pesa Reference"
+            required
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <div style={{ marginBottom: '1.5rem' }}>
+          <label style={{ display: 'block', marginBottom: '5px', fontWeight: 600 }}>Phone Number</label>
+          <input
+            type="text"
+            value={mobileNumber}
+            onChange={(e) => setMobileNumber(e.target.value)}
+            placeholder="2547XXXXXXXX"
+            required
+            style={{ width: '100%' }}
+          />
+        </div>
+
+        <button 
+          type="submit" 
+          className="btn-primary" 
+          disabled={loading}
+          style={{ width: '100%', padding: '12px' }}
+        >
+          {loading ? t('loading') + '...' : t('submit')}
+        </button>
       </form>
     </div>
   );
 };
+
+export default MakePayment;
 
 export default MakePayment;
 

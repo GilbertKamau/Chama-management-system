@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Database
+  db:
+    image: postgres:15-alpine
+    container_name: chama_db
+    restart: always
+    environment:
+      POSTGRES_DB: ${DB_DATABASE:-chama}
+      POSTGRES_USER: ${DB_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Backend (Laravel)
+  backend:
+    build:
+      context: ./chama-laravel
+      dockerfile: Dockerfile
+    container_name: chama_backend
+    restart: always
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE:-chama}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+    depends_on:
+      - db
+    ports:
+      - "8000:80"
+
+  # Frontend (React)
+  frontend:
+    build:
+      context: ./chama
+      dockerfile: Dockerfile
+    container_name: chama_frontend
+    restart: always
+    ports:
+      - "3000:80"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:

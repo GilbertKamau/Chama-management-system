@@ -1,28 +1,57 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost/chama-backend/api';
+// Docker-compose exposes Laravel on port 8000
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
 
-export const login = (credentials) => axios.post(`${API_URL}/auth.php`, { action: 'login', ...credentials });
-export const signUp = (userData) => axios.post(`${API_URL}/auth.php`, { action: 'signup', ...userData });
-export const makePayment = (paymentData) => axios.post(`${API_URL}/payments.php`, paymentData);
-export const requestLoan = (loanData) => axios.post(`${API_URL}/loans.php`, loanData);
-export const getPayments = (userId) => axios.get(`${API_URL}/payments.php?userId=${userId}`);
-export const getLoanRequests = () => axios.get(`${API_URL}/loans.php`);
-export const approveLoan = (loanId) => axios.post(`${API_URL}/loans.php/${loanId}/approve`);
-export const addUser = (userData) => axios.post(`${API_URL}/users.php`, userData);
-export const removeUser = (userId) => axios.delete(`${API_URL}/users.php`, { data: { userId } });
-export const getContributions = () => axios.get(`${API_URL}/contributions.php`);
+const api = axios.create({
+  baseURL: API_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
 
-export default {
-  login,
-  signUp,
-  makePayment,
-  requestLoan,
-  getPayments,
-  getLoanRequests,
-  approveLoan,
-  addUser,
-  removeUser,
-  getContributions
-};
+// Attach Bearer token from localStorage on every request
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
 
+// ─── Auth ──────────────────────────────────────────────────────────────────
+export const login   = (credentials) => api.post('/login', credentials);
+export const signUp  = (userData)    => api.post('/signup', userData);
+export const logout  = ()            => api.post('/logout');
+
+// ─── Contributions ─────────────────────────────────────────────────────────
+export const getContributions  = ()              => api.get('/contributions');
+export const addContribution   = (data)          => api.post('/contributions', data);
+
+// ─── Loans ─────────────────────────────────────────────────────────────────
+export const getLoanRequests   = ()              => api.get('/loans');
+export const requestLoan       = (data)          => api.post('/loans', data);
+export const approveLoan       = (id)            => api.put(`/loans/${id}/status`, { status: 'Approved' });
+export const rejectLoan        = (id)            => api.put(`/loans/${id}/status`, { status: 'Rejected' });
+export const disburseLoan      = (id)            => api.put(`/loans/${id}/status`, { status: 'Disbursed' });
+
+// ─── Payments ──────────────────────────────────────────────────────────────
+export const getPayments  = ()    => api.get('/payments');
+export const makePayment  = (data) => api.post('/payments', data);
+
+// ─── Chama ─────────────────────────────────────────────────────────────────
+export const getMyChama             = ()    => api.get('/chama');
+export const getChamaSummary        = ()    => api.get('/chama/summary');
+export const uploadConstitution     = (formData) =>
+  api.post('/chama/constitution', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+// ─── Super Admin ───────────────────────────────────────────────────────────
+export const getAllChamas = () => api.get('/admin/chamas');
+export const getAllUsers  = () => api.get('/admin/users');
+export const getReports   = () => api.get('/admin/reports');
+
+// ─── User management (admin) ───────────────────────────────────────────────
+export const addUser    = (data)   => api.post('/admin/users', data);
+export const removeUser = (userId) => api.delete(`/admin/users/${userId}`);
+
+export default api;
