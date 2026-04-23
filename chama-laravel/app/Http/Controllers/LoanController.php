@@ -7,6 +7,7 @@ use App\Services\GeminiAiService;
 use App\Services\SmsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
@@ -33,6 +34,19 @@ class LoanController extends Controller
         ]);
 
         $user = Auth::user();
+
+        // --- IDEMPOTENCY CHECK ---
+        // Prevent duplicate loan requests (same amount/duration) within the last 5 minutes
+        $duplicate = Loan::where('user_id', $user->id)
+            ->where('amount', $request->amount)
+            ->where('payment_duration', $request->payment_duration)
+            ->where('created_at', '>', now()->subMinutes(5))
+            ->first();
+
+        if ($duplicate) {
+            return response()->json(['message' => 'Duplicate loan request detected. Please wait a few minutes.'], 409);
+        }
+
         $chama = $user->chama;
         $pdfPath = $chama ? $chama->constitution_pdf_path : null;
 
@@ -64,18 +78,28 @@ class LoanController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $loan = Loan::with('user')->findOrFail($id);
-        $loan->update(['status' => $request->status]);
+        $request->validate(['status' => 'required|string']);
 
-        // Notify user of the final decision
-        if ($loan->user && $loan->user->phone_number) {
-            $msg = ($request->status === 'Approved') 
-                ? "Maombi yako ya mkopo wa KES " . number_format($loan->amount) . " YAMEKUBALIWA. Tafadhali subiri fedha kwenye simu yako."
-                : "Maombi yako ya mkopo wa KES " . number_format($loan->amount) . " YAMEKATALIWA. Tafadhali wasiliana na admin kwa maelezo zaidi.";
+        return DB::transaction(function () use ($request, $id) {
+            $loan = Loan::with('user')->lockForUpdate()->findOrFail($id);
             
-            $this->smsService->send($loan->user->phone_number, $msg);
-        }
+            // ACID: Prevent redundant or out-of-order updates
+            if ($loan->status === $request->status) {
+                return response()->json(['message' => 'Status already up to date.']);
+            }
 
-        return response()->json(['message' => 'Loan status updated and user notified.']);
+            $loan->update(['status' => $request->status]);
+
+            // Notify user of the final decision
+            if ($loan->user && $loan->user->phone_number) {
+                $msg = ($request->status === 'Approved' || $request->status === 'Disbursed') 
+                    ? "Maombi yako ya mkopo wa KES " . number_format($loan->amount) . " YAMEKUBALIWA. Fedha zinatumwa."
+                    : "Maombi yako ya mkopo wa KES " . number_format($loan->amount) . " YAMEKATALIWA.";
+                
+                $this->smsService->send($loan->user->phone_number, $msg);
+            }
+
+            return response()->json(['message' => 'Loan status updated securely.']);
+        });
     }
 }
