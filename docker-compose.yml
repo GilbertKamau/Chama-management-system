@@ -21,6 +21,7 @@ services:
       context: ./chama-laravel
       dockerfile: Dockerfile
     container_name: chama_backend
+    command: php artisan serve --host=0.0.0.0 --port=80
     restart: always
     environment:
       DB_CONNECTION: pgsql

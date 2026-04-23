@@ -26,7 +26,7 @@ export function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
     sessionStorage.setItem('user_role', userData.role);
     sessionStorage.setItem('user_id', userData.id);
-    // AuthForm handles navigation after login
+    // LoginPage handles navigation after login
   };
 
   const logout = () => {

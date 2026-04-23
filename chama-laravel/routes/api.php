@@ -6,11 +6,22 @@ use App\Http\Controllers\ContributionController;
 use App\Http\Controllers\LoanController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\UssdController;
+use App\Http\Controllers\MpesaController;
+use App\Http\Controllers\WhatsappController;
 use Illuminate\Support\Facades\Route;
 
 // ─── Public routes ──────────────────────────────────────────────────────────
 Route::post('/signup', [AuthController::class, 'signup']);
 Route::post('/login',  [AuthController::class, 'login']);
+
+// WhatsApp Webhook (Africa's Talking / Twilio)
+Route::post('/whatsapp', [WhatsappController::class, 'handle']);
+
+// Voice Command (Web App)
+Route::post('/voice', [WhatsappController::class, 'handleVoice']);
+
+// M-Pesa Callback (Safaricom calls this, no auth needed)
+Route::post('/mpesa/callback', [MpesaController::class, 'callback']);
 
 // USSD callback (Africa's Talking calls this endpoint, no auth needed)
 Route::post('/ussd', [UssdController::class, 'handle']);
@@ -24,6 +35,10 @@ Route::middleware('auth:sanctum')->group(function () {
     // Current user's Chama info
     Route::get('/chama', [ChamaController::class, 'show']);
     Route::get('/chama/summary', [ChamaController::class, 'summary']);
+    Route::put('/chama/settings', [ChamaController::class, 'updateSettings']);
+
+    // M-Pesa STK Push
+    Route::post('/mpesa/stkpush', [MpesaController::class, 'initiateStkPush']);
 
     // Constitution upload (Admin only)
     Route::post('/chama/constitution', [ChamaController::class, 'uploadConstitution']);

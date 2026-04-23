@@ -113,33 +113,70 @@ class ChamaController extends Controller
     }
 
     /**
+     * Admin: update Chama settings (Rules, Bank & M-Pesa).
+     */
+    public function updateSettings(Request $request)
+    {
+        $user = Auth::user();
+        if ($user->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $chama = $user->chama;
+        if (!$chama) return response()->json(['message' => 'Chama not found'], 404);
+
+        $request->validate([
+            'bank_name'             => 'nullable|string',
+            'bank_account'          => 'nullable|string',
+            'mpesa_shortcode'       => 'nullable|string',
+            'mpesa_passkey'         => 'nullable|string',
+            'mpesa_consumer_key'    => 'nullable|string',
+            'mpesa_consumer_secret' => 'nullable|string',
+            'contribution_amount'   => 'nullable|numeric',
+            'contribution_frequency' => 'nullable|string',
+            'contribution_day'      => 'nullable|string',
+        ]);
+
+        $chama->update($request->all());
+
+        return response()->json(['message' => 'Settings updated successfully']);
+    }
+
+    /**
      * Any Member: get summary metrics for transparency.
      */
     public function summary()
     {
         $user = Auth::user();
+        $chama = $user->chama;
 
-        // Isolation is handled by BelongsToChama global scope on Models
-        $totalPool      = Contribution::where('status', 'approved')->sum('amount');
-        $memberCount    = User::count();
-        $totalDisbursed = Loan::where('status', 'Approved')->sum('amount');
-        
-        // Personal stats
-        $userBalance    = Contribution::where('user_id', $user->id)->where('status', 'approved')->sum('amount');
-        $pendingLoans   = Loan::where('user_id', $user->id)->where('status', 'Pending')->count();
+        if (!$chama) return response()->json(['message' => 'No Chama found'], 404);
+
+        $totalPool = Contribution::where('chama_id', $chama->id)
+            ->where('status', 'approved')
+            ->sum('amount');
 
         return response()->json([
             'group' => [
-                'name'            => $user->chama->name ?? 'My Chama',
-                'total_pool'      => $totalPool,
-                'member_count'    => $memberCount,
-                'total_disbursed' => $totalDisbursed,
-                'available_pool'  => $totalPool - $totalDisbursed,
+                'name' => $chama->name,
+                'total_pool' => $totalPool,
+                'member_count' => User::where('chama_id', $chama->id)->count(),
+                'available_pool' => $totalPool - Loan::where('chama_id', $chama->id)->where('status', 'Approved')->sum('amount'),
+                'contribution_amount' => $chama->contribution_amount,
+                'contribution_frequency' => $chama->contribution_frequency,
+                'contribution_day' => $chama->contribution_day,
+                'has_onboarded' => $chama->has_onboarded,
+                'pending_loan_count' => Loan::where('chama_id', $chama->id)->where('status', 'Pending')->count(),
+                'overdue_count' => User::where('chama_id', $chama->id)
+                    ->whereDoesntHave('contributions', function($q) {
+                        $q->where('created_at', '>=', now()->subDays(30));
+                    })->count(),
             ],
             'personal' => [
-                'balance'       => $userBalance,
-                'pending_loans' => $pendingLoans,
-                'role'          => $user->role,
+                'balance' => Contribution::where('user_id', $user->id)->where('status', 'approved')->sum('amount'),
+                'pending_loans' => Loan::where('user_id', $user->id)->where('status', 'Pending')->count(),
+                'role' => $user->role,
+                'phone' => $user->phone_number
             ]
         ]);
     }

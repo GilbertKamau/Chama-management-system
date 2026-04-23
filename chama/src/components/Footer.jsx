@@ -1,10 +1,10 @@
 import React from 'react';
-import './Footer.css'; // Create and import a CSS file for styling
+import './Footer.css';
 
 const Footer = () => {
   return (
     <footer className="footer">
-      <p>All rights reserved 2024</p>
+      <p>© {new Date().getFullYear()} Chama Management System — All rights reserved</p>
     </footer>
   );
 };

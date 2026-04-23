@@ -26,6 +26,9 @@ WORKDIR /var/www/html
 # Copy existing application directory contents
 COPY . /var/www/html
 
+# Install backend dependencies
+RUN rm -f composer.lock && composer install --no-interaction --optimize-autoloader
+
 # Expose port 80
 EXPOSE 80
 

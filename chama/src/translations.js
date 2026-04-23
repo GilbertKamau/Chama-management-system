@@ -52,7 +52,21 @@ export const translations = {
     welcome_admin: "Welcome Admin!",
     member: "Member",
     description: "Description",
-    disburse: "Disburse"
+    disburse: "Disburse",
+    existing_users: "Existing Users",
+    role: "Role",
+    remove: "Remove",
+    search: "Search",
+    no_data: "No data available",
+    loading: "Loading",
+    step: "Step",
+    of: "of",
+    group_identity: "Group Identity",
+    money_rules: "Money Rules",
+    invite_members: "Invite Members",
+    finish_setup: "Finish & Start Chama",
+    next: "Next",
+    back: "Back"
   },
   sw: {
     welcome: "Karibu kwenye Usimamizi wa Chama",
@@ -107,6 +121,20 @@ export const translations = {
     welcome_admin: "Karibu Admin!",
     member: "Mwanachama",
     description: "Maelezo",
-    disburse: "Toa"
+    disburse: "Toa",
+    existing_users: "Watumiaji Waliopo",
+    role: "Jukumu",
+    remove: "Ondoa",
+    search: "Tafuta",
+    no_data: "Hakuna data inayopatikana",
+    loading: "Inapakia",
+    step: "Hatua",
+    of: "ya",
+    group_identity: "Utambulisho wa Kikundi",
+    money_rules: "Sheria za Fedha",
+    invite_members: "Alika Wanachama",
+    finish_setup: "Kamilisha na Anza",
+    next: "Endelea",
+    back: "Rudi nyuma"
   }
 };

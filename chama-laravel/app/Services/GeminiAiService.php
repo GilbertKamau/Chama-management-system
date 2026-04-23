@@ -71,6 +71,70 @@ class GeminiAiService
         return ['status' => 'approved', 'reason' => 'AI validation unreachable'];
     }
 
+    public function parseIntent($input, $isAudio = false)
+    {
+        if (empty($this->apiKey)) {
+            return ['action' => 'unknown', 'message' => 'AI intent parsing skipped: API Key missing'];
+        }
+
+        $parts = [];
+        if ($isAudio) {
+            $parts[] = [
+                "inline_data" => [
+                    "mime_type" => "audio/mp3", // Assuming mp3/ogg from WhatsApp/Web
+                    "data" => $input
+                ]
+            ];
+        } else {
+            $parts[] = ["text" => $input];
+        }
+
+        $prompt = "You are a specialized Chama (community savings) assistant. 
+        Your task is to extract the user's intent from the provided text or audio. 
+        The language may be English or Kiswahili (Swahili).
+        
+        Extract the following fields in strict JSON format:
+        - action: 'balance' | 'pay' | 'loan' | 'info' | 'unknown'
+        - amount: (integer) the money amount mentioned, or null
+        - duration: (integer) months for loan requests, or null
+        - message: (string) a short, friendly Swahili translation of what you understood
+        
+        Intent Mapping Examples:
+        - 'Salio langu?' -> {action: 'balance'}
+        - 'Lipa mchango wa mia tano' -> {action: 'pay', amount: 500}
+        - 'Nataka mkopo wa elfu kumi' -> {action: 'loan', amount: 10000}
+        
+        Response format (strict JSON only):
+        {
+          \"action\": \"...\",
+          \"amount\": ...,
+          \"duration\": ...,
+          \"message\": \"...\"
+        }";
+
+        $parts[] = ["text" => $prompt];
+
+        try {
+            $response = Http::post($this->apiUrl . "?key=" . $this->apiKey, [
+                "contents" => [
+                    [
+                        "parts" => $parts
+                    ]
+                ]
+            ]);
+
+            if ($response->successful()) {
+                $aiText = $response->json('candidates.0.content.parts.0.text');
+                $aiText = str_replace(['```json', '```'], '', $aiText);
+                return json_decode(trim($aiText), true) ?? ['action' => 'unknown', 'message' => 'Parsing error'];
+            }
+        } catch (\Exception $e) {
+            Log::error("Gemini Intent parsing failed: " . $e->getMessage());
+        }
+
+        return ['action' => 'unknown', 'message' => 'AI service unreachable'];
+    }
+
     protected function extractConstitutionText($path)
     {
         if (!$path || !Storage::disk('local')->exists($path)) {

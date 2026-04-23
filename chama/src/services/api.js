@@ -38,8 +38,14 @@ export const getPayments  = ()    => api.get('/payments');
 export const makePayment  = (data) => api.post('/payments', data);
 
 // ─── Chama ─────────────────────────────────────────────────────────────────
-export const getMyChama             = ()    => api.get('/chama');
-export const getChamaSummary        = ()    => api.get('/chama/summary');
+export const getMyChama             = () => api.get('/chama');
+export const getChamaSummary        = () => api.get('/chama/summary');
+export const updateChamaSettings    = (data) => api.put('/chama/settings', data);
+
+// ─── Voice & WhatsApp ──────────────────────────────────────────────────────
+export const initiateStkPush        = (data) => api.post('/mpesa/stkpush', data);
+export const parseVoiceIntent       = (audio) => api.post('/voice', { audio });
+
 export const uploadConstitution     = (formData) =>
   api.post('/chama/constitution', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },

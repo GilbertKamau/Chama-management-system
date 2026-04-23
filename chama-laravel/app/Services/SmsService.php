@@ -47,6 +47,15 @@ class SmsService
             Log::error("SMS EXCEPTION: " . $e->getMessage());
         }
 
-        return ['status' => 'failed'];
+        return ['status' => 'failed', 'message' => 'Exception occurred'];
+    }
+
+    /**
+     * Send a WhatsApp message (Africa's Talking).
+     */
+    public function sendWhatsapp($to, $message)
+    {
+        // AT often uses the same messaging endpoint for WhatsApp if configured
+        return $this->send($to, "[WhatsApp] $message");
     }
 }
