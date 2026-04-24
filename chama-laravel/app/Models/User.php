@@ -30,4 +30,14 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Chama::class);
     }
+
+    public function contributions()
+    {
+        return $this->hasMany(Contribution::class);
+    }
+
+    public function loans()
+    {
+        return $this->hasMany(Loan::class);
+    }
 }

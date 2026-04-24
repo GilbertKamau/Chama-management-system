@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->decimal('amount', 15, 2);
             $table->timestamp('contribution_date')->useCurrent();
             $table->text('description')->nullable();
-            $table->enum('status', ['approved', 'flagged'])->default('approved');
+            $table->string('status')->default('approved'); // approved, flagged
             $table->text('flag_reason')->nullable();
             $table->timestamps();
         });
@@ -25,7 +25,7 @@ return new class extends Migration {
             $table->decimal('amount', 15, 2);
             $table->integer('payment_duration'); // in months
             $table->string('mobile_number');
-            $table->enum('status', ['Pending', 'Approved', 'Rejected', 'Disbursed', 'Paid', 'flagged'])->default('Pending');
+            $table->string('status')->default('Pending'); // Pending, Approved, Rejected, Disbursed, Paid, flagged
             $table->text('flag_reason')->nullable();
             $table->timestamp('loan_date')->useCurrent();
             $table->timestamps();
@@ -38,7 +38,7 @@ return new class extends Migration {
             $table->decimal('amount', 15, 2);
             $table->string('payment_reference');
             $table->string('mobile_number');
-            $table->enum('status', ['approved', 'flagged'])->default('approved');
+            $table->string('status')->default('approved'); // approved, flagged
             $table->timestamps();
         });
     }
